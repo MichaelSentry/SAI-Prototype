@@ -1,5 +1,10 @@
 <?php
 namespace NinjaSentry\Sai;
+/**
+ * NinjaSentry SAI
+ * ----------------------------
+ * ninjasentry.com - 2016
+ */
 
 /**
  * Class Environment
@@ -249,11 +254,11 @@ class Environment
          * http://php.net/manual/en/info.configuration.php#ini.max-execution-time
          */
         //if( isset( $this->config->settings->max_exec_time ) ) {
-        //    ini_set( 'max_execution_time', $this->config->settings->max_exec_time );
+        // ini_set( 'max_execution_time', $this->config->settings->max_exec_time );
         //} else {
         // set a default max execution time
         // uses default php ini setting
-        // ini_set( 'max_execution_time', '' );
+        // ini_set( 'max_execution_time', '42' );
         // }
 
         /**
@@ -412,10 +417,10 @@ class Environment
      * Example :
      *
      * windows:
-     * $this->env->appPath('vendor') === C:/wamp/www/git/fortress/vendor/
+     * $env->appPath('vendor') === C:/wamp/www/git/fortress/vendor/
      *
      * Linux:
-     * $this->env->appPath('vendor') === /var/www/git/fortress/vendor/
+     * $env->appPath('vendor') === /var/www/git/fortress/vendor/
      *
      * @param string $path
      * @return string
