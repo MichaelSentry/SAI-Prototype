@@ -388,13 +388,22 @@ class Environment
             : 'https';
 
         $httpPath  = $protocol . '://' . $this->domain;
-        $httpPath .= dirname( dirname( $_SERVER['SCRIPT_NAME'] ) );
+        $httpPath .= dirname( dirname( $_SERVER['SCRIPT_NAME'] ) ); // todo - normalise path
 
         if( substr( $httpPath, -1 ) !== '/' ) {
             $httpPath .= '/';
         }
 
         return $httpPath;
+    }
+
+    /**
+     * TODO :: detect current directory depth and adjust accordingly
+     */
+    private function documentRoot()
+    {
+        $root = dirname( dirname( $_SERVER['SCRIPT_FILENAME'] ) );
+        return $root;
     }
 
     /**
@@ -406,7 +415,7 @@ class Environment
      * $this->env->appPath('vendor') === C:/wamp/www/git/fortress/vendor/
      *
      * Linux:
-     * $this->env->appPath('vendor') === var/www/git/fortress/vendor/
+     * $this->env->appPath('vendor') === /var/www/git/fortress/vendor/
      *
      * @param string $path
      * @return string
@@ -414,67 +423,64 @@ class Environment
      */
     public function appPath( $path = 'base_path' )
     {
-        if( ! empty( $_SERVER['SCRIPT_FILENAME'] ) )
-        {
-            $root = dirname( dirname( $_SERVER['SCRIPT_FILENAME'] ) );
+        $docRoot = $this->documentRoot();
 
-            if( substr( $root, -1 ) !== '/' ) {
-                $root .= '/';
+        if( ! empty( $docRoot ) )
+        {
+            if( substr( $docRoot, -1 ) !== '/' ) {
+                $docRoot .= '/';
             }
-        }
 
-        if( isset( $root ) )
-        {
             switch( $path )
             {
                 case('root'):
                 case('doc_root'):
-                    return dirname( dirname( $root ) );
+                    return dirname( dirname( $docRoot ) ); // todo - normalise path
                     break;
 
                 default;
                 case('base_path'):
-                    return $root;
+                    return $docRoot;
                     break;
 
                 case('app'):
-                    return $root . 'app/';
+                    return $docRoot . 'app/';
                     break;
 
                 case('cache'):
-                    return $root . 'app/cache/';
+                    return $docRoot . 'app/cache/';
                     break;
 
                 case('config'):
-                    return $root . 'app/config/';
+                    return $docRoot . 'app/config/';
                     break;
 
                 case('controllers'):
-                    return $root . 'app/controllers/';
+                    return $docRoot . 'app/controllers/';
                     break;
 
                 case('kernel'):
-                    return $root . 'app/kernel/';
+                    return $docRoot . 'app/kernel/';
                     break;
 
                 case('models'):
-                    return $root . 'app/models/';
+                    return $docRoot . 'app/models/';
                     break;
 
                 case('modules'):
-                    return $root . 'app/';
+                    return $docRoot . 'app/';
                     break;
 
                 case('tmp'):
-                    return $root . 'tmp/';
+                    return $docRoot . 'tmp/';
                     break;
 
                 case('vendor'):
-                    return $root . 'vendor/';
+                    return $docRoot . 'vendor/';
                     break;
 
                 case('views'):
-                    return $root . 'views/';
+                    return $docRoot. 'views/';
                     break;
             }
         }
