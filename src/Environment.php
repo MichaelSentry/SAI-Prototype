@@ -1,9 +1,10 @@
 <?php
 namespace NinjaSentry\Sai;
+
 /**
- * NinjaSentry SAI
- * ----------------------------
- * ninjasentry.com - 2016
+ * SAI Prototype
+ * -----------------------
+ * ninjasentry.com 2016
  */
 
 /**
