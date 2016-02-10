@@ -369,7 +369,7 @@ class Environment
     {
         $devIp = self::DEVELOPMENT_SERVER_IP_PATTERN;
 
-        if( ! empty( $dev_ip ) && ! empty( $_SERVER['SERVER_ADDR'] ) )
+        if( ! empty( $devIp ) && ! empty( $_SERVER['SERVER_ADDR'] ) )
         {
             if( $ip = ( filter_var( $_SERVER['SERVER_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) )
             {
