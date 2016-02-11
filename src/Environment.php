@@ -31,20 +31,38 @@ class Environment
     /**
      * Auto detect development mode
      * eg : '`^(?:10\.|127\.0\.0\.1|172\.(?:1[6-9|2[0-9]|3[01])|192\.168\.)`';
+     *
+     * * moved to config file *
      */
     const DEVELOPMENT_SERVER_IP_PATTERN = '';
 
     /**
      * Validated domain / hostname
+     *
      * @var string
      */
-    public $domain = '';
+    private $domain = '';
 
     /**
-     * Current Application Environment Mode State
+     * Application environment mode state
+     *
      * @var string
      */
     public $mode = '';
+
+    /**
+     * Accepted Host names
+     *
+     * @var
+     */
+    public $hosts;
+
+    /**
+     * Application settings
+     *
+     * @var
+     */
+    private $settings;
 
     /**
      * Environment constructor.
@@ -54,33 +72,17 @@ class Environment
     public function __construct( Config $config )
     {
         /**
-         * Load config
+         * Load config object
          */
         $this->config = $config;
 
         /**
-         * Load hosts from config
-         * ( set in /app/config/env.php )
+         * Load application settings
          */
-        $this->hosts = (array) $this->config->get('hosts');
+        $this->settings();
 
         /**
-         * Get host name from Client request
-         */
-        $this->domain = $this->getHostName();
-
-        /**
-         * Validate hosts & Get environment mode
-         */
-        $this->mode = $this->getModeFromHost();
-
-        /**
-         * Load app settings based on env mode
-         */
-        $this->settings = $this->config->get( $this->mode );
-
-        /**
-         * Prepare to init application
+         * Prepare application for launch
          */
         $this->prepare();
     }
@@ -95,49 +97,36 @@ class Environment
     }
 
     /**
-     * Todo :: validation - use firewall input filter on all server input ?
-     *
-     * @return bool|string
+     * Load application config settings
      */
-    private function getHostName()
+    public function settings()
     {
-        $validHost = false;
+        /**
+         * Load hosts from config file
+         * ( set in app/config/env.php )
+         */
+        $this->hosts = (array) $this->config->get('hosts');
 
-        $serverName = ( ! empty( $_SERVER['SERVER_NAME'] )
-            ? $_SERVER['SERVER_NAME']
-            : ''
-        );
+        /**
+         * Get host name from Client request
+         */
+        $this->domain = $this->getHostName();
 
-        $httpHost = ( ! empty( $_SERVER['HTTP_HOST'] )
-            ? $_SERVER['HTTP_HOST']
-            : ''
-        );
+        /**
+         * Get environment mode
+         * Validate hosts
+         */
+        $this->mode = $this->getModeFromHost();
 
-        if( ! empty( $this->hosts ) && is_array( $this->hosts ) )
-        {
-            foreach( $this->hosts as $envMode => $hostNames )
-            {
-                if( empty( $hostNames ) ) {
-                    continue;
-                }
+        /**
+         * Load settings based on env mode
+         */
+        $this->settings = $this->config->get( $this->mode );
 
-                if( in_array( $serverName, $hostNames ) ) {
-                    $validHost = $serverName;
-                }
-                elseif( in_array( $httpHost, $hostNames ) ) {
-                    $validHost = $httpHost;
-                }
-            }
-        }
-
-        if( empty( $validHost ) )
-        {
-            throw new \RuntimeException(
-                'Environment Error :: Client requested unknown Server Name / Http Host'
-            );
-        }
-
-        return $validHost;
+        /**
+         * validate server name / http host
+         */
+        $this->validateHostName();
     }
 
     /**
@@ -175,12 +164,9 @@ class Environment
     {
         $tz = $this->settings->timezone;
 
-        if( ! empty( $tz ) && is_string( $tz ) )
-        {
+        if( ! empty( $tz ) && is_string( $tz ) ) {
             date_default_timezone_set( $tz );
-
         } else {
-
             date_default_timezone_set( date_default_timezone_get() );
         }
     }
@@ -263,14 +249,12 @@ class Environment
         // }
 
         /**
-         *
+         * upload_max_filesize
          */
-        //upload_max_filesize
 
         /**
-         *
+         * post_max_size
          */
-        // post_max_size
 
         /**
          * Max_input_time [ Default : -1 ]
@@ -290,6 +274,82 @@ class Environment
          */
         // ini_set( 'max_input_vars', '' );
 
+    }
+
+    /**
+     * Todo :: validation - use firewall input filter on all server input ?
+     */
+    private function validateHostName()
+    {
+        $validHost  = false;
+        $serverName = $this->settings->server_name;
+
+        if( ! empty( $this->domain ) && is_string( $this->domain ) )
+        {
+            if( $this->domain !== $serverName )
+            {
+                throw new \RuntimeException(
+                    'Environment Error :: Unknown host name requested'
+                );
+            }
+
+            $validHost = $this->domain;
+        }
+
+        if( empty( $validHost ) )
+        {
+            throw new \RuntimeException(
+                'Environment Error :: Server Name not found'
+            );
+        }
+
+        return $validHost;
+    }
+
+    /**
+     * Todo :: validation - use firewall input filter on all server input ?
+     *
+     * @return bool|string
+     */
+    private function getHostName()
+    {
+        $validHost = false;
+
+        $serverName = ( ! empty( $_SERVER['SERVER_NAME'] )
+            ? $_SERVER['SERVER_NAME']
+            : ''
+        );
+
+        $httpHost = ( ! empty( $_SERVER['HTTP_HOST'] )
+            ? $_SERVER['HTTP_HOST']
+            : ''
+        );
+
+        if( ! empty( $this->hosts ) && is_array( $this->hosts ) )
+        {
+            foreach( $this->hosts as $envMode => $hostNames )
+            {
+                if( empty( $hostNames ) ) {
+                    continue;
+                }
+
+                if( in_array( $serverName, $hostNames ) ) {
+                    $validHost = $serverName;
+                }
+                elseif( in_array( $httpHost, $hostNames ) ) {
+                    $validHost = $httpHost;
+                }
+            }
+        }
+
+        if( empty( $validHost ) )
+        {
+            throw new \RuntimeException(
+                'Environment Error :: Client requested unknown Server Name / Http Host'
+            );
+        }
+
+        return $validHost;
     }
 
     /**
@@ -323,7 +383,7 @@ class Environment
         }
 
         /**
-         * Set new mode if valid
+         * Set mode
          */
         if( $validated ) {
             $mode = $validated;
@@ -394,7 +454,7 @@ class Environment
             : 'https';
 
         $httpPath  = $protocol . '://' . $this->domain;
-        $httpPath .= dirname( dirname( $_SERVER['SCRIPT_NAME'] ) ); // todo - normalise path
+        $httpPath .= $this->appRoot();
 
         if( substr( $httpPath, -1 ) !== '/' ) {
             $httpPath .= '/';
@@ -404,12 +464,40 @@ class Environment
     }
 
     /**
-     * TODO :: detect current directory depth and adjust accordingly
+     * Application base path for building a HTTP path
+     *
+     * @return mixed
+     * @throws \Exception
      */
-    private function documentRoot()
+    private function appRoot()
     {
-        $root = dirname( dirname( $_SERVER['SCRIPT_FILENAME'] ) );
-        return $root;
+        if( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
+            $basePath = $_SERVER['DOCUMENT_ROOT'];
+        } else {
+            // todo :: calculate sub directory depth
+            $basePath = dirname( dirname( $_SERVER['SCRIPT_NAME'] ) );
+        }
+
+        if( empty( $basePath ) )
+        {
+            throw new \Exception(
+                'Environment Error :: Document root was not found'
+            );
+        }
+
+        $path = str_replace( $basePath, '', $this->settings->document_root );
+
+        return $path;
+    }
+
+    /**
+     * Get application root path set in app/config/env.php
+     * Used for building internal application path
+     *
+     * @return string
+     */
+    private function documentRoot(){
+        return $this->settings->document_root;
     }
 
     /**
