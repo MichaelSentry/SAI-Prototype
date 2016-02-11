@@ -97,9 +97,30 @@ class Environment
     }
 
     /**
+     * Application Http Path
+     * @param bool|false $ssl
+     * @return string
+     */
+    public function httpPath( $ssl = false )
+    {
+        $protocol = empty( $ssl )
+            ? 'http'
+            : 'https';
+
+        $httpPath  = $protocol . '://' . $this->domain;
+        $httpPath .= $this->appRoot();
+
+        if( substr( $httpPath, -1 ) !== '/' ) {
+            $httpPath .= '/';
+        }
+
+        return $httpPath;
+    }
+
+    /**
      * Load application config settings
      */
-    public function settings()
+    private function settings()
     {
         /**
          * Load hosts from config file
@@ -133,7 +154,7 @@ class Environment
      * Set Secure Foundation
      * Set TimeZone
      */
-    public function prepare()
+    private function prepare()
     {
         /**
          * Set Application TimeZone
@@ -159,7 +180,7 @@ class Environment
      * Eg : date_default_timezone_set( 'UTC' );
      * http://php.net/manual/en/timezones.php
      */
-    public function setTimezone()
+    private function setTimezone()
     {
         $tz = $this->settings->timezone;
 
@@ -442,24 +463,13 @@ class Environment
     }
 
     /**
-     * Application Http Path
-     * @param bool|false $ssl
+     * Get application root path set in app/config/env.php
+     * Used for building internal application path
+     *
      * @return string
      */
-    public function httpPath( $ssl = false )
-    {
-        $protocol = empty( $ssl )
-            ? 'http'
-            : 'https';
-
-        $httpPath  = $protocol . '://' . $this->domain;
-        $httpPath .= $this->appRoot();
-
-        if( substr( $httpPath, -1 ) !== '/' ) {
-            $httpPath .= '/';
-        }
-
-        return $httpPath;
+    private function documentRoot(){
+        return $this->settings->document_root;
     }
 
     /**
@@ -490,16 +500,6 @@ class Environment
     }
 
     /**
-     * Get application root path set in app/config/env.php
-     * Used for building internal application path
-     *
-     * @return string
-     */
-    private function documentRoot(){
-        return $this->settings->document_root;
-    }
-
-    /**
      * Get internal application directory path
      *
      * Example :
@@ -509,6 +509,8 @@ class Environment
      *
      * Linux:
      * $env->appPath('kernel') === /var/www/git/fortress/app/kernel/
+     *
+     * Todo : move to Sai/Environment/Path
      *
      * @param string $path
      * @return string
