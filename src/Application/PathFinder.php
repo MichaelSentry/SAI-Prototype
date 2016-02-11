@@ -1,6 +1,12 @@
 <?php
 namespace NinjaSentry\Sai\Application;
 
+/**
+ * SAI Prototype
+ * -----------------------
+ * ninjasentry.com 2016
+ */
+
 use NinjaSentry\Sai\Config;
 
 /**
@@ -52,10 +58,10 @@ class PathFinder
      * Example :
      *
      * windows:
-     * $env->appPath('vendor') === C:/wamp/www/git/fortress/vendor/
+     * $env->appPath('kernel') === C:/wamp/www/git/fortress/app/kernel/
      *
      * Linux:
-     * $env->appPath('vendor') === /var/www/git/fortress/vendor/
+     * $env->appPath('kernel') === /var/www/git/fortress/app/kernel/
      *
      * @param string $path
      * @return string
