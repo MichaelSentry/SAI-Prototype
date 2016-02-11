@@ -114,7 +114,6 @@ class Environment
 
         /**
          * Get environment mode
-         * Validate hosts
          */
         $this->mode = $this->getModeFromHost();
 
@@ -485,7 +484,7 @@ class Environment
             );
         }
 
-        $path = str_replace( $basePath, '', $this->settings->document_root );
+        $path = str_replace( $basePath, '', $this->documentRoot() );
 
         return $path;
     }
@@ -501,15 +500,15 @@ class Environment
     }
 
     /**
-     * Get internal application directory paths
+     * Get internal application directory path
      *
      * Example :
      *
      * windows:
-     * $env->appPath('vendor') === C:/wamp/www/git/fortress/vendor/
+     * $env->appPath('kernel') === C:/wamp/www/git/fortress/app/kernel/
      *
      * Linux:
-     * $env->appPath('vendor') === /var/www/git/fortress/vendor/
+     * $env->appPath('kernel') === /var/www/git/fortress/app/kernel/
      *
      * @param string $path
      * @return string
