@@ -562,7 +562,7 @@ class Environment
                     break;
 
                 case('modules'):
-                    return $docRoot . 'app/';
+                    return $docRoot . 'app/modules/';
                     break;
 
                 case('tmp'):
