@@ -29,14 +29,6 @@ class Environment
     const STAGING_MODE = 'staging';
 
     /**
-     * Auto detect development mode
-     * eg : '`^(?:10\.|127\.0\.0\.1|172\.(?:1[6-9|2[0-9]|3[01])|192\.168\.)`';
-     *
-     * * moved to config file *
-     */
-    const DEVELOPMENT_SERVER_IP_PATTERN = '';
-
-    /**
      * Validated domain / hostname
      *
      * @var string
@@ -94,27 +86,6 @@ class Environment
      */
     public function getMode(){
         return $this->mode;
-    }
-
-    /**
-     * Application Http Path
-     * @param bool|false $ssl
-     * @return string
-     */
-    public function httpPath( $ssl = false )
-    {
-        $protocol = empty( $ssl )
-            ? 'http'
-            : 'https';
-
-        $httpPath  = $protocol . '://' . $this->domain;
-        $httpPath .= $this->appRoot();
-
-        if( substr( $httpPath, -1 ) !== '/' ) {
-            $httpPath .= '/';
-        }
-
-        return $httpPath;
     }
 
     /**
@@ -375,7 +346,7 @@ class Environment
     /**
      * Auto Detect Server Environment ( Overrides the default Production Environment mode )
      * Host Match : Development server Host Name Match ( development | staging | production )
-     * IP Match : A positive match for a Private / Reserved etc IPv4 address automatically sets app to development mode
+     * IP Match : A positive match for a white listed address sets app to the matching mode
      *
      * @return string
      */
@@ -391,10 +362,6 @@ class Environment
          */
         $validated = false;
 
-        /**
-         * Override default mode
-         * Find matching Host or IP
-         */
         if( empty( $this->hosts ) ) {
             $validated = $this->matchIp();
         }
@@ -402,9 +369,6 @@ class Environment
             $validated = $this->matchHost();
         }
 
-        /**
-         * Set mode
-         */
         if( $validated ) {
             $mode = $validated;
         }
@@ -442,12 +406,15 @@ class Environment
     }
 
     /**
-     * Detect environment based on server IP address ( IPv4 Only )
-     * TODO : load a user provided policy file to auto set environments via specific IP ranges
+     * Detect environment based on preset server IP address
+     *
+     * Expects valid regex pattern
+     * eg : '`^(10\.|127\.0\.0\.1|172\.(1[6-9|2[0-9]|3[01])|192\.168\.)`U'
+     *
      */
     private function matchIp()
     {
-        $devIp = self::DEVELOPMENT_SERVER_IP_PATTERN;
+        $devIp = $this->settings->pattern_match;
 
         if( ! empty( $devIp ) && ! empty( $_SERVER['SERVER_ADDR'] ) )
         {
@@ -460,137 +427,5 @@ class Environment
         }
 
         return false;
-    }
-
-    /**
-     * Get application root path set in app/config/env.php
-     * Used for building internal application path
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    private function documentRoot()
-    {
-        if( empty( $this->settings->document_root ) )
-        {
-            throw new \Exception(
-                'Environment Error :: Expected document root setting was not found in env config'
-            );
-        }
-
-        return $this->settings->document_root;
-    }
-
-    /**
-     * Application base path for building a HTTP path
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    private function appRoot()
-    {
-        if( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-            $basePath = $_SERVER['DOCUMENT_ROOT'];
-        } else {
-            // todo :: calculate sub directory depth
-            $basePath = dirname( dirname( $_SERVER['SCRIPT_NAME'] ) );
-        }
-
-        if( empty( $basePath ) )
-        {
-            throw new \Exception(
-                'Environment Error :: Document root was not found'
-            );
-        }
-
-        $path = str_replace( $basePath, '', $this->documentRoot() );
-
-        return $path;
-    }
-
-    /**
-     * Get internal application directory path
-     *
-     * Example :
-     *
-     * windows:
-     * $env->appPath('kernel') === C:/wamp/www/git/fortress/app/kernel/
-     *
-     * Linux:
-     * $env->appPath('kernel') === /var/www/git/fortress/app/kernel/
-     *
-     * Todo : move to Sai/Environment/Path
-     *
-     * @param string $path
-     * @return string
-     * @throws \Exception
-     */
-    public function appPath( $path = 'base_path' )
-    {
-        $docRoot = $this->documentRoot();
-
-        if( ! empty( $docRoot ) )
-        {
-            if( substr( $docRoot, -1 ) !== '/' ) {
-                $docRoot .= '/';
-            }
-
-            switch( $path )
-            {
-                case('root'):
-                case('doc_root'):
-                    return dirname( dirname( $docRoot ) ); // todo - normalise path
-                    break;
-
-                default;
-                case('base_path'):
-                    return $docRoot;
-                    break;
-
-                case('app'):
-                    return $docRoot . 'app/';
-                    break;
-
-                case('cache'):
-                    return $docRoot . 'app/cache/';
-                    break;
-
-                case('config'):
-                    return $docRoot . 'app/config/';
-                    break;
-
-                case('controllers'):
-                    return $docRoot . 'app/controllers/';
-                    break;
-
-                case('kernel'):
-                    return $docRoot . 'app/kernel/';
-                    break;
-
-                case('models'):
-                    return $docRoot . 'app/models/';
-                    break;
-
-                case('modules'):
-                    return $docRoot . 'app/modules/';
-                    break;
-
-                case('tmp'):
-                    return $docRoot . 'tmp/';
-                    break;
-
-                case('vendor'):
-                    return $docRoot . 'vendor/';
-                    break;
-
-                case('views'):
-                    return $docRoot. 'views/';
-                    break;
-            }
-        }
-
-        throw new \Exception(
-            'Environment :: Path not found' . escaped( $path )
-        );
     }
 }
