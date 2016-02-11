@@ -124,7 +124,7 @@ class Environment
     {
         /**
          * Load hosts from config file
-         * ( set in app/config/env.php )
+         * eg : ( set in app/config/env.php )
          */
         $this->hosts = (array) $this->config->get('hosts');
 
@@ -466,9 +466,18 @@ class Environment
      * Get application root path set in app/config/env.php
      * Used for building internal application path
      *
-     * @return string
+     * @return mixed
+     * @throws \Exception
      */
-    private function documentRoot(){
+    private function documentRoot()
+    {
+        if( empty( $this->settings->document_root ) )
+        {
+            throw new \Exception(
+                'Environment Error :: Expected document root setting was not found in env config'
+            );
+        }
+
         return $this->settings->document_root;
     }
 
