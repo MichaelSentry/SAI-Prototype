@@ -58,10 +58,10 @@ class PathFinder
      * Example :
      *
      * windows:
-     * $env->appPath('kernel') === C:/wamp/www/git/fortress/app/kernel/
+     * $pathfinder->app('kernel') === C:/wamp/www/git/fortress/app/kernel/
      *
      * Linux:
-     * $env->appPath('kernel') === /var/www/git/fortress/app/kernel/
+     * $pathfinder->app('kernel') === /var/www/git/fortress/app/kernel/
      *
      * @param string $path
      * @return string

@@ -128,6 +128,13 @@ class Environment
     private function prepare()
     {
         /**
+         * Set error / exception / shutdown handlers
+         */
+        set_error_handler( 'sai_error_handler' );
+        set_exception_handler( 'sai_exception_handler' );
+        register_shutdown_function( 'sai_shutdown_handler' );
+
+        /**
          * Set Application TimeZone
          */
         $this->setTimezone();
@@ -136,13 +143,6 @@ class Environment
          * Set Application foundation settings based on Environment
          */
         $this->secureFoundation();
-
-        /**
-         * Set error / exception / shutdown handler
-         */
-        set_error_handler( 'sai_error_handler' );
-        set_exception_handler( 'sai_exception_handler' );
-        register_shutdown_function( 'sai_shutdown_handler' );
     }
 
     /**
@@ -206,7 +206,7 @@ class Environment
          * set default location : /var/log/ ( vHost ServerName ) /
          */
         ini_set( 'log_errors', true );
-        ini_set( 'error_log', $this->settings->error_log ); // ..app_error.log
+        ini_set( 'error_log', $this->settings->error_log ); // app_error.log
 
         /**
          * Mail Log
@@ -225,19 +225,17 @@ class Environment
          * Set a maximum Memory Limit
          * $this->settings->memory_limit
          */
-        ini_set( 'memory_limit', $this->settings->memory_limit );
+        if( isset( $this->settings->memory_limit ) ) {
+            ini_set( 'memory_limit', $this->settings->memory_limit );
+        }
 
         /**
          * Set maximum execution time [ Default : 30 - 60 seconds ]
          * http://php.net/manual/en/info.configuration.php#ini.max-execution-time
          */
-        //if( isset( $this->config->settings->max_exec_time ) ) {
-        // ini_set( 'max_execution_time', $this->config->settings->max_exec_time );
-        //} else {
-        // set a default max execution time
-        // uses default php ini setting
-        // ini_set( 'max_execution_time', '42' );
-        // }
+        if( isset( $this->settings->max_exec_time ) ) {
+            ini_set( 'max_execution_time', $this->settings->max_exec_time );
+        }
 
         /**
          * upload_max_filesize
