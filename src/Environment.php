@@ -89,6 +89,13 @@ class Environment
     }
 
     /**
+     * @return mixed
+     */
+    public function serverName(){
+        return $this->settings->server_name;
+    }
+
+    /**
      * Load application config settings
      */
     private function settings()
@@ -266,12 +273,12 @@ class Environment
     }
 
     /**
-     * Todo :: validation - use firewall input filter on all server input ?
+     * Validate domain against server_name set in env configuration
      */
     private function validateHostName()
     {
         $validHost  = false;
-        $serverName = $this->settings->server_name;
+        $serverName = $this->serverName();
 
         if( ! empty( $this->domain ) && is_string( $this->domain ) )
         {
