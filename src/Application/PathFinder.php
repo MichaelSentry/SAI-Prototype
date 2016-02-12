@@ -58,14 +58,14 @@ class PathFinder
     /**
      * Get internal application directory paths
      *
-     * Example :
+     * Examples :
      *
      * windows:
      * $path->app('kernel') === C:/wamp/www/git/fortress/app/kernel/
      *
      * Linux:
      * $path->app('kernel') === /var/www/git/fortress/app/kernel/
-     **
+     *
      * @param string $path
      * @return string
      * @throws \Exception
@@ -113,7 +113,7 @@ class PathFinder
     }
 
     /**
-     * Application base path for building a HTTP path
+     * Get application base path for building a HTTP path
      *
      * @return mixed
      * @throws \Exception
