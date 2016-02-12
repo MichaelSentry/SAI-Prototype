@@ -3,8 +3,16 @@ namespace NinjaSentry\Sai;
 
 /**
  * SAI Prototype
- * -----------------------
+ * --------------------
+ * Application Class
+ *
  * ninjasentry.com 2016
+ */
+
+/**
+ * "I never could have done what i have done without the habits of punctuality, order and diligence,
+ * without that determination to concentrate myself on one subject at a time."
+ * ~ Charles Dickens
  */
 
 /**
@@ -351,7 +359,7 @@ class Environment
     /**
      * Auto Detect Server Environment ( Overrides the default Production Environment mode )
      * Host Match : Development server Host Name Match ( development | staging | production )
-     * IP Match : A positive match for a white listed address sets app to the matching mode
+     * IP Match : A positive match for a white listed address sets new app env mode
      *
      * @return string
      */
