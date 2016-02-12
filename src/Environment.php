@@ -119,7 +119,7 @@ class Environment
     private function settings()
     {
         /**
-         * Load hosts from config file
+         * Load hosts map from config file
          * eg : ( set in app/config/env.php )
          */
         $this->hosts = (array) $this->config->get('hosts');
@@ -138,11 +138,6 @@ class Environment
          * Load settings based on env mode
          */
         $this->settings = $this->config->get( $this->mode );
-
-        /**
-         * validate server name / http host
-         */
-        $this->validateHostName();
     }
 
     /**
@@ -291,39 +286,11 @@ class Environment
     }
 
     /**
-     * Validate domain against server_name set in env configuration
-     */
-    private function validateHostName()
-    {
-        $validHost  = false;
-        $serverName = $this->serverName();
-
-        if( ! empty( $this->domain ) && is_string( $this->domain ) )
-        {
-            if( $this->domain !== $serverName )
-            {
-                throw new \RuntimeException(
-                    'Environment Error :: Unknown host name requested'
-                );
-            }
-
-            $validHost = $this->domain;
-        }
-
-        if( empty( $validHost ) )
-        {
-            throw new \RuntimeException(
-                'Environment Error :: Server Name not found'
-            );
-        }
-
-        return $validHost;
-    }
-
-    /**
-     * Todo :: validation - use firewall input filter on all server input ?
+     * Get host name from Client
+     * assigned to var $this->domain
      *
      * @return bool|string
+     * @throws \Exception
      */
     private function getHostName()
     {
@@ -339,27 +306,41 @@ class Environment
             : ''
         );
 
-        if( ! empty( $this->hosts ) && is_array( $this->hosts ) )
+        if( empty( $this->hosts ) )
         {
-            foreach( $this->hosts as $envMode => $hostNames )
-            {
-                if( empty( $hostNames ) ) {
-                    continue;
-                }
+            throw new \Exception(
+                'Environment Error :: Expected hosts map is empty'
+            );
+        }
 
-                if( in_array( $serverName, $hostNames ) ) {
-                    $validHost = $serverName;
-                }
-                elseif( in_array( $httpHost, $hostNames ) ) {
-                    $validHost = $httpHost;
-                }
+        if( ! is_array( $this->hosts ) )
+        {
+            $type = gettype( $this->hosts );
+
+            throw new \Exception(
+                'Environment Error :: Expected hosts map must be an array.'
+                . 'Current data type ( ' . $type . ' )'
+            );
+        }
+
+        foreach( $this->hosts as $envMode => $hostNames )
+        {
+            if( empty( $hostNames ) ) {
+                continue;
+            }
+
+            if( in_array( $serverName, $hostNames ) ) {
+                $validHost = $serverName;
+            }
+            elseif( in_array( $httpHost, $hostNames ) ) {
+                $validHost = $httpHost;
             }
         }
 
         if( empty( $validHost ) )
         {
             throw new \RuntimeException(
-                'Environment Error :: Client requested unknown Server Name / Http Host'
+                'Environment Error :: No matching Server Name / Http Host was found'
             );
         }
 
