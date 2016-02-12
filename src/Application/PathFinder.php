@@ -74,20 +74,17 @@ class PathFinder
     {
         $docRoot = $this->documentRoot();
 
-        if( ! empty( $docRoot ) )
-        {
-            if( substr( $docRoot, -1 ) !== '/' ) {
-                $docRoot .= '/';
-            }
+        if( substr( $docRoot, -1 ) !== '/' ) {
+            $docRoot .= '/';
+        }
 
-            if( $path === 'doc_root' ) {
-                return $docRoot;
-            }
+        if( $path === 'doc_root' ) {
+            return $docRoot;
+        }
 
-            if( $this->map->has( $path ) ) {
-                $value = $docRoot . $this->map->get( $path );
-                return $value;
-            }
+        if( $this->map->has( $path ) ) {
+            $value = $docRoot . $this->map->get( $path );
+            return $value;
         }
 
         throw new \Exception(
@@ -96,8 +93,8 @@ class PathFinder
     }
 
     /**
-     * Get application root path set in app/config/env.php
-     * Used for building internal application path
+     * Custom document root method for building internal application paths
+     * Get full path to application directory ( set in app/config/env.php )
      *
      * @return mixed
      * @throws \Exception
@@ -107,7 +104,8 @@ class PathFinder
         if( empty( $this->config->document_root ) )
         {
             throw new \Exception(
-                'Environment Error :: Expected document root setting was not found in env config'
+                'PathFinder Error :: Expected "document_root" setting not found.'
+                . 'Please check your /app/config/env.php file for more details'
             );
         }
 
@@ -132,10 +130,14 @@ class PathFinder
         if( empty( $basePath ) )
         {
             throw new \Exception(
-                'Environment Error :: Document root was not found'
+                'PathFinder Error :: Application base path not found'
             );
         }
 
+        /**
+         * Remove the base path from the document root path
+         * to get the application directory path eg : ( /fortress/app/ )
+         */
         $path = str_replace( $basePath, '', $this->documentRoot() );
 
         return $path;
