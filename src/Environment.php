@@ -88,7 +88,7 @@ class Environment
     }
 
     /**
-     * Get Application Environment mode
+     * Get application environment mode
      * Production (default) | Development | Staging
      * @return string
      */
@@ -97,9 +97,19 @@ class Environment
     }
 
     /**
+     * Get application server name
      * @return mixed
+     * @throws \Exception
      */
-    public function serverName(){
+    public function serverName()
+    {
+        if( empty( $this->settings->server_name ) )
+        {
+            throw new \Exception(
+                'Environment Error :: Expected server_name value is empty'
+            );
+        }
+
         return $this->settings->server_name;
     }
 
