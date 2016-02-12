@@ -1,12 +1,18 @@
 <?php
 namespace NinjaSentry\Sai\Application;
 
+/**
+ * SAI Prototype
+ * ------------------------------------
+ * PathFinder Class
+ * ninjasentry.com 2016
+ */
+
 use NinjaSentry\Sai\Config;
 
 /**
- * SAI Prototype
- * -----------------------
- * ninjasentry.com 2016
+ * "Mistakes are always forgivable, if one has the courage to admit them."
+ * ~ Bruce Lee
  */
 
 /**
