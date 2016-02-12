@@ -88,7 +88,7 @@ class PathFinder
         }
 
         throw new \Exception(
-            'Environment :: Path not found' . escaped( $path )
+            'PathFinder Error :: Path not found ( ' . escaped( $path ) .  ' )'
         );
     }
 
@@ -138,8 +138,6 @@ class PathFinder
          * Remove the base path from the document root path
          * to get the application directory path eg : ( /fortress/app/ )
          */
-        $path = str_replace( $basePath, '', $this->documentRoot() );
-
-        return $path;
+        return str_replace( $basePath, '', $this->documentRoot() );
     }
 }
