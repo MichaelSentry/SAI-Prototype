@@ -51,11 +51,12 @@ class Environment
     public $mode = '';
 
     /**
+     * Hosts Map
      * Accepted Host names
      *
-     * @var
+     * @var array
      */
-    public $hosts;
+    public $hosts = [];
 
     /**
      * Application settings
@@ -184,10 +185,10 @@ class Environment
 
     /**
      * Secure Environment
-     * Set Error Reporting based on environment
+     *
+     * Set Error Reporting based on environment mode
      * Prevent information disclosure by not displaying errors in production mode
-     * Set Error Logging
-     * Log all application errors to file
+     * Set Error Logging - Log all application errors to file
      * http://php.net/manual/en/errorfunc.configuration.php
      */
     private function secureFoundation()
@@ -410,11 +411,10 @@ class Environment
     }
 
     /**
-     * Detect environment based on preset server IP address
+     * Detect environment based on preset server IP address ( IPv4 )
      *
      * Expects valid regex pattern
      * eg : '`^(10\.|127\.0\.0\.1|172\.(1[6-9|2[0-9]|3[01])|192\.168\.)`U'
-     *
      */
     private function matchIp()
     {
