@@ -55,7 +55,7 @@ class PathFinder
         $http_path .= $this->appRoot();
 
         if( substr( $http_path, -1 ) !== '/' ) {
-            $http_path = $http_path . '/';
+            $http_path .= '/';
         }
 
         return $http_path;
