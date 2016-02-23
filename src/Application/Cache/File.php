@@ -8,7 +8,7 @@ use NinjaSentry\Sai\Config;
  * Class File
  * @package NinjaSentry\Sai\Application\Cache
  */
-class File
+class File implements Cached
 {
     /**
      * @var
@@ -50,7 +50,7 @@ class File
      * @return mixed
      */
     public function status(){
-        return $this->config->get('cache.status');
+        return $this->status;
     }
 
     /**
@@ -63,14 +63,20 @@ class File
     public function getId( Route $route, $path )
     {
         $this->route  = $route;
-
         $this->uri    = $route->getUri();
         $this->id     = md5( $route->uri );
         $this->dir    = $path;
-        $this->file   = $this->dir . $this->id . $this->ext;
+    }
 
+    /**
+     * @return string
+     */
+    public function getFile()
+    {
+        $this->file  = $this->dir . $this->id . $this->ext;
         return $this->file;
     }
+
 
     /**
      * Fetch file from cache
@@ -122,9 +128,7 @@ class File
     {
         if( is_readable( $this->file ) )
         {
-            $cache_exclusions = $this->config->get('cache.exclusions');
-
-            if( ! in_array( $this->route->module, $cache_exclusions ) ) {
+            if( ! in_array( $this->route->module, $this->exclusions ) ) {
                 return true;
             }
         }
@@ -137,7 +141,7 @@ class File
      *
      * @throws \Exception
      */
-    public function clear()
+    public function purge()
     {
         if( empty( $this->dir ) )
         {
