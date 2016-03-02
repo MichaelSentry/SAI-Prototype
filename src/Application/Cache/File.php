@@ -11,6 +11,11 @@ use NinjaSentry\Sai\Config;
 class File implements Cached
 {
     /**
+     * Cache directory permissions
+     */
+    const NEW_DIR_PERMISSION = 0755;
+
+    /**
      * @var
      */
     private $dir;
@@ -19,11 +24,6 @@ class File implements Cached
      * @var
      */
     private $id;
-
-    /**
-     * @var
-     */
-    private $file;
 
     /**
      * @var
@@ -47,6 +47,28 @@ class File implements Cached
     }
 
     /**
+     * Get cache file identifier
+     * @param Route $route
+     * @param $path
+     * @return string
+     */
+    public function getId( Route $route, $path )
+    {
+        $this->route = $route;
+        $this->dir   = $path;
+        $this->uri   = $route->getUri();
+        $this->id    = md5( $this->uri );
+    }
+
+    /**
+     * @return string
+     */
+    public function getFile(){
+        return $this->dir . $this->id . $this->ext;
+    }
+
+    /**
+     * Get cache enabled status ( true | False )
      * @return mixed
      */
     public function status(){
@@ -54,29 +76,38 @@ class File implements Cached
     }
 
     /**
-     * Get cache file identifier
-     *
-     * @param Route $route
-     * @param $path
-     * @return string
+     * Cache action status
+     * @return bool
      */
-    public function getId( Route $route, $path )
+    public function able()
     {
-        $this->route  = $route;
-        $this->uri    = $route->getUri();
-        $this->id     = md5( $route->uri );
-        $this->dir    = $path;
+        if( $this->status() )
+        {
+            if( $this->exists() ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * @return string
+     * Check if cache file exists and not in exclusions list
+     *
+     * @return bool
+     * @throws \Exception
      */
-    public function getFile()
+    public function exists()
     {
-        $this->file  = $this->dir . $this->id . $this->ext;
-        return $this->file;
-    }
+        if( ! in_array( $this->route->module, $this->exclusions ) )
+        {
+            if( is_readable( $this->getFile() ) ) {
+                return true;
+            }
+        }
 
+        return false;
+    }
 
     /**
      * Fetch file from cache
@@ -84,7 +115,7 @@ class File implements Cached
     public function read()
     {
         ob_start();
-        require $this->file;
+        require $this->getFile();
         return ob_get_clean();
     }
 
@@ -105,7 +136,7 @@ class File implements Cached
 
         if( ! is_dir( $this->dir ) )
         {
-            @mkdir( $this->dir, 0775 );
+            @mkdir( $this->dir, self::NEW_DIR_PERMISSION );
 
             if( ! is_dir( $this->dir ) )
             {
@@ -115,30 +146,13 @@ class File implements Cached
             }
         }
 
-        $file = new \SplFileObject( $this->file, 'w+b');
+        $file = new \SplFileObject( $this->getFile(), 'w+b');
         $file->fwrite( $content );
         $file = null;
     }
 
     /**
-     * @return bool
-     * @throws \Exception
-     */
-    public function exists()
-    {
-        if( is_readable( $this->file ) )
-        {
-            if( ! in_array( $this->route->module, $this->exclusions ) ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Clear all files from cache directory
-     *
      * @throws \Exception
      */
     public function purge()
