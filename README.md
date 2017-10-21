@@ -1,6 +1,8 @@
 # SAI
-Stealth Application Interface
+Shinobi Application Interface  
 
-SAI is the foundation framework for the NinjaSentry Fortress CMS
+Foundation framework of NinjaSentry Fortified CMS.    
+Building intrusion resistant, self defending web applications in PHP.  
+  
+To be continued...  
 
-To be continued...
